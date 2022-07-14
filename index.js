@@ -20,26 +20,17 @@ const verifyPassword = (req, res, next) => {
   if (password === 'chickennugget') {
     next()
   }
-  res.send('YOU NEED A PASSWORD!')
+  // res.send('YOU NEED A PASSWORD!')
+  throw new Error('Password required!')
 }
-
-// app.use((req, res, next) => {
-//     console.log("THIS IS MY FIRST MIDDLEWARE!!!")
-//     return next();
-//     console.log("THIS IS MY FIRST MIDDLEWARE - AFTER CALLING NEXT()")
-// })
-// app.use((req, res, next) => {
-//     console.log("THIS IS MY SECOND MIDDLEWARE!!!")
-//     return next();
-// })
-// app.use((req, res, next) => {
-//     console.log("THIS IS MY THIRD MIDDLEWARE!!!")
-//     return next();
-// })
 
 app.get('/', (req, res) => {
   console.log(`REQUEST DATE: ${req.requestTime}`)
   res.send('HOME PAGE!')
+})
+
+app.get('/error', (req, res) => {
+  chicken.fly()
 })
 
 app.get('/dogs', (req, res) => {
@@ -55,6 +46,14 @@ app.get('/secret', verifyPassword, (req, res) => {
 
 app.use((req, res) => {
   res.status(404).send('NOT FOUND!')
+})
+
+app.use((err, req, res, next) => {
+  console.log('***********************')
+  console.log('********ERROR***********')
+  console.log('***********************')
+  // res.status(500).send('WE GOT AN ERROR!')
+  next(err)
 })
 
 app.listen(3001, () => {
