@@ -1,7 +1,11 @@
 const express = require('express')
 const app = express()
+const cors = require('cors')
 const morgan = require('morgan')
 
+const AppError = require('./AppError')
+
+app.use(cors())
 app.use(morgan('tiny'))
 
 app.use((req, res, next) => {
@@ -21,7 +25,7 @@ const verifyPassword = (req, res, next) => {
     next()
   }
   // res.send('YOU NEED A PASSWORD!')
-  throw new Error('Password required!')
+  throw new AppError('Password required', 401)
 }
 
 app.get('/', (req, res) => {
@@ -44,16 +48,25 @@ app.get('/secret', verifyPassword, (req, res) => {
   )
 })
 
+app.get('/admin', (req, res) => {
+  throw new AppError('You are not an Admin!', 403)
+})
+
 app.use((req, res) => {
   res.status(404).send('NOT FOUND!')
 })
 
+// app.use((err, req, res, next) => {
+//   console.log('***********************')
+//   console.log('********ERROR***********')
+//   console.log('***********************')
+//   // res.status(500).send('WE GOT AN ERROR!')
+//   next(err)
+// })
+
 app.use((err, req, res, next) => {
-  console.log('***********************')
-  console.log('********ERROR***********')
-  console.log('***********************')
-  // res.status(500).send('WE GOT AN ERROR!')
-  next(err)
+  const { status = 500, message = 'Something went wrong' } = err
+  res.status(status).send(message)
 })
 
 app.listen(3001, () => {
